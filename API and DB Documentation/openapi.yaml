@@ -1,0 +1,425 @@
+openapi: 3.0.1
+servers: []
+info:
+  description: This is a simple API for managing schools
+  version: '1.0'
+  title: Multi-User Blog API
+  contact:
+    email: xyz@unb.ca
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: registeredUser
+    description: Registered user calls only
+  - name: generalUser
+    description: Anyone using the platform
+paths:
+  /blogs:
+    get:
+      tags:
+        - generalUser
+      summary: get blogs table
+      operationId: getBlogs
+      description: |
+        Lists all blogs, or a subset for a specified user
+      responses:
+        '200':
+          description: successfull
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+        '501':
+          description: server error
+  
+  /blogs/{blogId}:
+    get:
+      tags:
+        - generalUser
+      summary: get blogs table
+      operationId: getBlogById
+      description: |
+        The blog with the particular blog id
+      parameters:
+        - in: path
+          name: blogId
+          description: the blog id of the particular blog
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+        '400':
+          description: invalid input
+        '501':
+          description: server error  
+  
+  /blogs/{blogId}/comments:
+    get:
+      tags:
+        - generalUser
+      summary: get comments on particular blog
+      operationId: getComments
+      description: |
+        The comments on particular blog
+      parameters:
+        - in: path
+          name: blogId
+          description: the blog id of the particular blog
+          required: true
+          schema:
+            type: integer 
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: invalid input
+        '501':
+          description: server error  
+   
+  /user/login:
+    get:
+      tags:
+      - generalUser
+      summary: Logs user into the system
+      operationId: loginUser
+      parameters:
+      - name: username
+        in: query
+        description: The user name for login
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: invalid input
+          content: {}
+        501:
+          description: server error  
+          
+  /user/logout:
+    get:
+      tags:
+      - registeredUser
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+          content: {}
+      
+  
+  /user/{userId}/blogs:
+    get:
+      tags:
+        - registeredUser
+      summary: Searches blogs for specific user id
+      operationId: getBlogsByUserId
+      description: |
+        Lists all blogs for specified user id
+      parameters:
+        - in: path
+          name: userId
+          description: User value to search for
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+        400:
+          description: invalid input
+        501:
+          description: server error
+          
+    post:
+      tags:
+        - registeredUser
+      summary: add a new blog
+      operationId: addBlog
+      description: Adds a blog for the registered user
+      parameters:
+        - in: path
+          name: userId
+          description: optional User value to search for
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: blog created
+        '400':
+          description: invalid input
+        '501':
+          description: server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blog'
+        description: Blog to add
+        
+  /user/{userId}/blogs/{blogId}:  
+    delete:
+      tags:
+      - registeredUser
+      summary: delete an existing blog
+      description: deleting the blog by its blog id
+      operationId: deleteBlog
+      parameters:
+        - in: path
+          name: userId
+          description: optional user value to search for
+          required: true
+          schema:
+            type: integer
+            
+        - in: path
+          name: blogId
+          description: optional blog value to search for
+          required: true
+          schema:
+            type: integer    
+      responses:
+        204:
+          description: Successfully deleted a blog
+        400:
+          description: invalid input
+        404:
+          description: blog not found
+        501:
+          description: server error  
+          
+    put:
+      tags:
+      - registeredUser
+      summary: Update an existing blog
+      operationId: updateBlog
+      parameters:
+        - in: path
+          name: userId
+          description: optional user value to search for
+          required: true
+          schema:
+            type: integer
+            
+        - in: path
+          name: blogId
+          description: optional blog value to search for
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: blog object to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blog'
+        required: true
+      responses:
+        200:
+          description: Blog updated
+        404:
+          description: Blog not found
+        405:
+          description: Validation exception
+  
+  /user/{userId}/blogs/{blogId}/comments:
+    post:
+      tags:
+        - registeredUser
+      summary: add comment to a blog  
+      operationId: addComment
+      description: Adds a comment for the particular blog as a particular user
+      parameters:
+        - in: path
+          name: userId
+          description: optional User value to search for
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: blogId
+          description: optional blog value to search for
+          required: true
+          schema:
+            type: integer    
+      responses:
+        '201':
+          description: comment created
+        '400':
+          description: invalid input
+        '501':
+          description: server error  
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        description: Comment to add
+        
+  /user/{userId}/blogs/{blogId}/comments/{commentId}:      
+    delete:
+      tags:
+      - registeredUser
+      summary: delete an existing comment
+      description: deleting the comment by its commentId
+      operationId: deleteComment
+      parameters:
+        - in: path
+          name: userId
+          description: optional user value to search for
+          required: true
+          schema:
+            type: integer
+            
+        - in: path
+          name: blogId
+          description: optional blog value to search for
+          required: true
+          schema:
+            type: integer    
+            
+        - in: path
+          name: commentId
+          description: comment has a unique comment id
+          required: true
+          schema:
+            type: integer    
+      responses:
+        204:
+          description: Successfully deleted a comment
+        400:
+          description: invalid input
+        404:
+          description: comment not found
+        '501':
+          description: server error  
+          
+    put:
+      tags:
+      - registeredUser
+      summary: Update an existing comment
+      operationId: updateComment
+      parameters:
+        - in: path
+          name: userId
+          description: optional user value to search for
+          required: true
+          schema:
+            type: integer
+            
+        - in: path
+          name: blogId
+          description: optional blog value to search for
+          required: true
+          schema:
+            type: integer
+            
+        - in: path
+          name: commentId
+          description: comment has a unique comment id
+          required: true
+          schema:
+            type: integer     
+      requestBody:
+        description: comment object to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        200:
+          description: comment updated
+        404:
+          description: comment not found
+        405:
+          description: Validation exception
+        '501':
+          description: server error  
+          
+          
+components:
+  schemas:
+    Blog:
+      type: "object"
+      required:
+        - "title"
+        - "content"
+      properties:
+        author:
+          type: "string"
+          example: "mbridgla"
+        blogID:
+          type: "integer"
+          example: 101002300
+        title:
+          type: "string"
+          example: "Op Amps and You"
+        content:
+          type: "string"
+          example: "The many questions I have cannot be expressed on this page."
+        date:
+          type: "string"
+          example: "Mar. 4th, 2016"
+        userID:
+          type: "integer"
+          example: 101000000
+    Comment:
+      type: "object"
+      required: 
+          - "content"
+      properties:
+        commentID:
+          type: "integer"
+          example: 123004403
+        author:
+          type: "string"
+          example: "mbridgla"
+        content:
+          type: "string"
+          example: "Man, I wish I'd applied myself in that class."
+        date:
+          type: "string"
+          example: "June 11th, 2016"
+        userID:
+          type: "integer"
+          example: 123000000
+        blogID:
+          type: "integer"
+          example: 123004400

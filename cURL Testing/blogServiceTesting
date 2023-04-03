@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X GET -b \
+   cookie-jar -k https://cs3103.cs.unb.ca:8027/blogs
+
+
+# Get a specific blog by ID
+read -r -p "get single blog with this ID: " blogID
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X GET -b \
+   cookie-jar -k "https://cs3103.cs.unb.ca:8027/blogs/${blogID}"
+
+
+# Get all comments for a  specific blog by ID
+read -r -p "Get comments for blog with this ID: " blogID
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X GET -b \
+   cookie-jar -k "https://cs3103.cs.unb.ca:8027/blogs/${blogID}/comments"
+
+
+# Read username and password
+read -r -p "username: " username
+read -r -s -p "password: " password
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X POST -d '{"username": "'$username'", "password": "'$password'"}' \
+   -c cookie-jar https://cs3103.cs.unb.ca:8027/user/login --insecure
+
+
+# Read blog  info
+read -r -p "title: " title
+read -r -p "content: " content
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X POST -d '{"title":"'"$title"'","content":"'"$content"'"}' \
+   -b cookie-jar -k https://cs3103.cs.unb.ca:8027/user/1/blogs
+
+
+# Read comment  info
+read -r -p "Add comment to blog with this ID: " blogID
+read -r -p "content: " content
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X POST -d '{"content":"'"$content"'"}' \
+   -b cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}/comments"
+
+
+
+# Get all blogs by a specific user ID
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X GET -b \
+   cookie-jar -k https://cs3103.cs.unb.ca:8027/user/1/blogs
+
+
+# Get comments for a specific blog
+read -r -p "Get comments for blog with this ID: " blogID
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X GET -b \
+   cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}/comments"
+
+
+# Read update  info
+read -r -p "commentId of the comment to update: " commentID
+read -r -p "blog id holding comment to update: " blogID
+read -r -p "updated comment content: " content
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X PUT -d '{"content":"'"$content"'"}' \
+   -b cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}/comments/${commentID}"
+
+
+# Read update  info
+read -r -p "Give blogId for the blog to update: " blogID
+read -r -p "updated blog content: " content
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X PUT -d '{"title":"updating a blog test","content":"'"$content"'"}' \
+   -b cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}"
+
+# Read comment ID to delete  info
+read -r -p "blogId to delete comment from: " blogID
+read -r -p "commentId for the to delete: " commentID
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X DELETE \
+   -b cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}/comments/${commentID}"
+
+
+# Read blog ID to delete  info
+read -r -p "blogId for the blog to delete: " blogID
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X DELETE \
+   -b cookie-jar -k "https://cs3103.cs.unb.ca:8027/user/1/blogs/${blogID}"
+
+
+#Confirm the user is logged into the system
+#substite into the curl command
+curl -i -H "Content-Type: applcation/json" \
+    -X GET -b \
+    cookie-jar -k https://cs3103.cs.unb.ca:8027/user/login
+
+#log the user out of the system,
+#substite into the curl command
+curl -i -H "Content-Type: application/json" \
+    -X GET -b \
+    cookie-jar -k https://cs3103.cs.unb.ca:8027/user/logout
+
