@@ -61,6 +61,8 @@ var app = new Vue({
         });
     },
 
+
+    //todo: check all the catch the bannerContent
     methods: {
         login() {
             if(this.input.username != "" && this.input.password != "") {
@@ -105,15 +107,11 @@ var app = new Vue({
             this.content = "";
         },
 
-        deleteUser(){
-
-        },
-
         getBlogs(){
             axios
             .get(this.baseURL + "/blogs")
             .then( response => {
-                this.blogData = response.data.blogs; // ? where was this .blog parameter held?
+                this.blogData = response.data.blogs;
             })
             .catch( e => {
                 this.bannerContent.blogNotFound = "Something went wrong.";
@@ -122,7 +120,15 @@ var app = new Vue({
         },
 
         getBlogsByUser(userId){
-
+            axios
+            .get(this.baseURL + "/user/" + userId + "/blogs/")
+            .then( response => {
+                this.blogData = response.data.blogs;
+            })
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Something went wrong.";
+                console.log(e);
+            });
         },
 
         displayBlog(blogId){    // (fr. selectSchool(schoolId)  )
@@ -134,12 +140,32 @@ var app = new Vue({
             }
         },
 
-        addBlog(/* form data */ ){
-
+        addBlog(title, content){
+            axios
+            let requestJson = {'title': title, 'content': content}
+            .post(this.baseURL + "/user/" + loggedIn + "/blogs/", requestJson)
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Something went wrong.";
+                console.log(e);
+            });
         },
         
-        removeBlog(/* current id */){
+        removeBlog(blogId){
+            axios
+            .delete(this.baseURL + "/user/" + loggedIn + "/blogs/" + blogId)
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Something went wrong.";
+                console.log(e);
+            });
+        },
 
+        removeComment(blogId, commentId){
+            axios
+            .delete(this.baseURL + "/user/" + loggedIn + "/blogs/" + blogId, + "/comments/" + commentId)
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Something went wrong.";
+                console.log(e);
+            });
         },
 
         showBlogModal() {
