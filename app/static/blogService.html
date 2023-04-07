@@ -2,6 +2,13 @@
 <html>
     <head>
         <title>Multi-User Blog Service</title>
+        <link rel="stylesheet" href="./project.css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js" defer></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" defer></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js" defer></script>
+        <script type="text/javascript" src="./blogs.js" defer></script>
     </head>
     <body>
         <div class="container-fluid" id="app">
@@ -22,7 +29,7 @@
                     <div v-for="blog in blogData">
                         <li class="list-group-item col-7 mx-auto">
                             <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(blog.blogId)">
-                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.userId}}
+                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.author}}
                             </div>
                         </li>
                     </div>
@@ -119,12 +126,5 @@
                 </transition>
             </script>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="./blogs.js" ></script>
-        <link rel="stylesheet" href="./project.css"/>
     </body>
 </html>
