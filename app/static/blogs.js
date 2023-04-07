@@ -168,6 +168,8 @@ var app = new Vue({
             });
         },
 
+        
+
         showBlogModal() {
             this.isolateModal = true;
         },
@@ -176,11 +178,11 @@ var app = new Vue({
         },
     },// --- methods --- //
 
-    /*
+    
     computed: {
-        // we're not tracking upvotes but they could go here if we were
+        
     },
-
+/*
     watch: {
         // probably aren't going to be doing anything with this one either.
     }
