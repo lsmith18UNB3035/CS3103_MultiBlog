@@ -22,7 +22,7 @@
                     <div v-for="blog in blogData">
                         <li class="list-group-item col-7 mx-auto">
                             <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(blog.blogId)">
-                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.userId}}
+                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.author}}
                             </div>
                         </li>
                     </div>

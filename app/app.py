@@ -152,8 +152,13 @@ class Login(Resource):
       except:
          abort(400) # bad request
 
+      sql = 'getUserWithUsername'
+      args = (request_params['username'],)
+      row = sqlCallFetchOne(sql, args)
+      userId = row['userId']
+
       if request_params['username'] in session:
-         response = {'status': 'success'}
+         response = {'status': 'success', 'userId': userId}
          responseCode = 200
       else:
          try:
@@ -166,16 +171,14 @@ class Login(Resource):
             ldapConnection.start_tls()
             ldapConnection.bind()
             # At this point we have sucessfully authenticated.#check if the user is in the user database or add if not
-            sql = 'getUserWithUsername'
-            args = (request_params['username'],)
-            row = sqlCallFetchOne(sql, args)
             if(row == None):
                #add user
                sql = 'addUser'
                sqlCallFetchOne(sql, args)
             
             session['username'] = request_params['username']
-            response = {'status': 'success' }
+            response = {'status': 'success', 'userId': userId}
+         
             responseCode = 201
          except LDAPException:
             response = {'status': 'Access denied'}
