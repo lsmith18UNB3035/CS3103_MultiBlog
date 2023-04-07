@@ -9,7 +9,7 @@ var app = new Vue({
         baseURL: "https://cs3103.cs.unb.ca:8027",
         authenticated: false,
         loggedIn: null,
-        blogData: null, // ?? when do we populate it?
+        blogData: null,
         editModal: false,
         isolateModal: false,
 
@@ -63,6 +63,8 @@ var app = new Vue({
 
     methods: {
         login() {
+            this.bannerContent.badLogin = "";
+            this.bannerContent.noCredentials = "";
             if(this.input.username != "" && this.input.password != "") {
                 axios
                 .post(this.baseURL + "/user/login", {
@@ -87,7 +89,6 @@ var app = new Vue({
         },
 
         logout(){
-            // How much of the process does this really get done?
             axios.get(this.baseURL + "/user/logout")
             .then( response => {
                 this.authenticated = false;
@@ -99,10 +100,21 @@ var app = new Vue({
             });
         },
 
-        // consider getting rid of this
-        resetForm(){
-            this.title = "";
-            this.content = "";
+        resetBlogData(){
+            this.blogData = null;
+            this.displayedBlog.blogId = -1;
+            this.displayedBlog.userId = -1;
+            this.displayedBlog.title = "";
+            this.displayedBlog.content = "";
+            this.displayedBlog.author = "";
+        },
+
+        resetCommentData(){
+            this.displayedComment.blogId = -1;
+            this.displayedComment.userId = -1;
+            this.displayedComment.commentId = "";
+            this.displayedComment.content = "";
+            this.displayedComment.author = "";
         },
 
         deleteUser(){
@@ -134,15 +146,21 @@ var app = new Vue({
             }
         },
 
-        addBlog(/* form data */ ){
-
-        },
-        
-        removeBlog(/* current id */){
+        addBlog(){
+            this.resetBlogData();
 
         },
 
+        addComment(){
+            this.resetCommentData();
+
+        },
         
+        removeBlog(){
+
+        },
+
+
 
         showBlogModal() {
             this.isolateModal = true;
@@ -156,15 +174,6 @@ var app = new Vue({
     computed: {
         
     },
-/*
-    watch: {
-        // probably aren't going to be doing anything with this one either.
-    }
-    */
-
-    //mounted: {    /* for axios? */  }
-
-
 });
 
 
@@ -173,10 +182,6 @@ var app = new Vue({
 /*  TODO:
 
         editBlog(){
-
-        },
-
-        addComment(){
 
         },
 
