@@ -72,9 +72,10 @@ var app = new Vue({
 
         logout(){
             // How much of the process does this really get done?
-            axios.get(this.baseURL + "/logout")
+            axios.get(this.baseURL + "/user/logout")
             .then( response => {
                 this.authenticated = false;
+                this.loggedIn = null;
                 location.reload();
             })
             .catch( e => {
