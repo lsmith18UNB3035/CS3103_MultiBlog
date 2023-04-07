@@ -45,6 +45,22 @@ var app = new Vue({
         },
     },
 
+    mounted: function() {
+        axios
+        .get(this.baseURL+"/user/login")
+        .then(response => {
+          if (response.data.status == "success") {
+            this.authenticated = true;
+            this.loggedIn = response.data.user_id;
+            this.getBlogs();
+          }
+        })
+        .catch(error => {
+            this.authenticated = false;
+            console.log(error);
+        });
+    },
+
     methods: {
         login() {
             if(this.input.username != "" && this.input.password != "") {
@@ -57,8 +73,8 @@ var app = new Vue({
                         if (response.data.status == "success") {
                             this.authenticated = true;
                             this.loggedIn = response.data.userId;
+                            this.getBlogs();
                         }
-                        this.getBlogs();
                 })
                 .catch(e => {
                     this.bannerContent.badLogin = "Incorrect username or password, please try again";
