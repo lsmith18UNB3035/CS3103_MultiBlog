@@ -193,8 +193,12 @@ class Login(Resource):
    # Example curl command:
    # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar http://cs3103.cs.unb.ca:61024/user/login
    def get(self):
+      sql = 'getUserWithUsername'
+      args = (session['username'],)
+      row = sqlCallFetchOne(sql, args)
+      userId = row['userId']
       if 'username' in session:
-         response = {'status': 'success'}
+         response = {'status': 'success', 'userId': userId}
          responseCode = 200
       else:
          response = {'status': 'fail'}
@@ -243,8 +247,10 @@ class UserBlog(Resource):
          sql = 'getBlogsByUser'
          args = (userId,)
          rows = sqlCallFetchAll(sql, args)
+         rowsWithAuthor = addAuthors(rows)
+         rowsWithAuthor = correctDateAndTime(rowsWithAuthor)
 
-         return make_response(jsonify({"blogs": rows}), 200) # successful  
+         return make_response(jsonify({"blogs": rowsWithAuthor}), 200) # successful  
       
    def post(self, userId):
       if not request.json:
@@ -309,7 +315,6 @@ class UserBlogSpec(Resource):
          abort(403)
 
    def delete(self, userId, blogId):
-      #ToDo: check if the user is authorized to delete this blog
       if 'username' in session:
          getTotalBlogsSql = 'getTotalBlogs'
          totalBeforeRemove = sqlCallFetchOne(getTotalBlogsSql)

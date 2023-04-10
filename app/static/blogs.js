@@ -9,9 +9,12 @@ var app = new Vue({
         baseURL: "https://cs3103.cs.unb.ca:8027",
         authenticated: false,
         loggedIn: null,
-        blogData: null,
+        blogData: null, // ?? when do we populate it?
+        userBlogData: null,
         editModal: false,
         isolateModal: false,
+        homeModal:false,
+        writeModal: false,
 
         input: {
             username: "",
@@ -20,6 +23,11 @@ var app = new Vue({
 
         // worth adding?
         // blogList : {
+
+        selectedBlog: { //this is basically the edited blog
+            title: "",
+            content: ""
+        }, 
 
         displayedBlog: {
             blogId: -1,
@@ -51,7 +59,7 @@ var app = new Vue({
         .then(response => {
           if (response.data.status == "success") {
             this.authenticated = true;
-            this.loggedIn = response.data.user_id;
+            this.loggedIn = response.data.userId;
             this.getBlogs();
           }
         })
@@ -65,8 +73,6 @@ var app = new Vue({
     //todo: check all the catch the bannerContent
     methods: {
         login() {
-            this.bannerContent.badLogin = "";
-            this.bannerContent.noCredentials = "";
             if(this.input.username != "" && this.input.password != "") {
                 axios
                 .post(this.baseURL + "/user/login", {
@@ -91,6 +97,7 @@ var app = new Vue({
         },
 
         logout(){
+            // How much of the process does this really get done?
             axios.get(this.baseURL + "/user/logout")
             .then( response => {
                 this.authenticated = false;
@@ -102,21 +109,10 @@ var app = new Vue({
             });
         },
 
-        resetBlogData(){
-            this.blogData = null;
-            this.displayedBlog.blogId = -1;
-            this.displayedBlog.userId = -1;
-            this.displayedBlog.title = "";
-            this.displayedBlog.content = "";
-            this.displayedBlog.author = "";
-        },
-
-        resetCommentData(){
-            this.displayedComment.blogId = -1;
-            this.displayedComment.userId = -1;
-            this.displayedComment.commentId = "";
-            this.displayedComment.content = "";
-            this.displayedComment.author = "";
+        // consider getting rid of this
+        resetForm(){
+            this.title = "";
+            this.content = "";
         },
 
         getBlogs(){
@@ -131,16 +127,17 @@ var app = new Vue({
             });
         },
 
-        getBlogsByUser(userId){
+        getBlogsByUser(){
             axios
-            .get(this.baseURL + "/user/" + userId + "/blogs/")
+            .get(this.baseURL + "/user/" + this.loggedIn + "/blogs")
             .then( response => {
-                this.blogData = response.data.blogs;
+                this.userBlogData = response.data.blogs;
             })
             .catch( e => {
                 this.bannerContent.blogNotFound = "Something went wrong.";
                 console.log(e);
             });
+            this.showHomeModal();
         },
 
         displayBlog(blogId){    // (fr. selectSchool(schoolId)  )
@@ -153,7 +150,6 @@ var app = new Vue({
         },
 
         addBlog(title, content){
-            this.resetBlogData();
             axios
             let requestJson = {'title': title, 'content': content}
             .post(this.baseURL + "/user/" + loggedIn + "/blogs/", requestJson)
@@ -162,18 +158,36 @@ var app = new Vue({
                 console.log(e);
             });
         },
-        
-        removeBlog(blogId){
-            this.resetCommentData();
+
+        submitBlogEdit() {
+            let requestJson = null;
+            requestJson = {'title': this.selectedBlog.title, 'content': this.selectedBlog.content}
+            console.log(requestJson)
             axios
-            .delete(this.baseURL + "/user/" + loggedIn + "/blogs/" + blogId)
+            .put(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId, requestJson)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Something went wrong.";         // this need to be changed.........
                 console.log(e);
             });
         },
 
-        removeComment(blogId, commentId){
+        editBlog() {
+            this.showEditModal();
+            this.selectedBlog.title = this.displayedBlog.title;
+            this.selectedBlog.content = this.displayedBlog.content;
+        },
+        
+        deleteBlog(blogId){
+            axios
+            .delete(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId)
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Something went wrong.";
+                console.log(e);
+            });
+            this.hideEditModal();
+        },
+
+        deleteComment(blogId, commentId){
             axios
             .delete(this.baseURL + "/user/" + loggedIn + "/blogs/" + blogId, + "/comments/" + commentId)
             .catch( e => {
@@ -182,20 +196,49 @@ var app = new Vue({
             });
         },
 
-
-
         showBlogModal() {
             this.isolateModal = true;
+        },
+        showEditModal() {
+            this.editModal = true;
+        },
+        showHomeModal() {
+            this.homeModal = true;
+        },
+        showWriteModal() {
+            this.writeModal = true;
+            this.homeModal = false;
         },
         hideBlogModal() {
             this.isolateModal = false;
         },
+        hideEditModal() {
+            this.editModal = false;
+            this.isolateModal = false;
+            location.reload();
+        },
+        hideHomeModal() {
+            this.homeModal = false;
+        },
+        hideWriteModal() {
+            this.writeModal = false;
+            this.homeModal = true;
+        }
     },// --- methods --- //
 
-    
+    /*
     computed: {
-        
+        // we're not tracking upvotes but they could go here if we were
     },
+
+    watch: {
+        // probably aren't going to be doing anything with this one either.
+    }
+    */
+
+    //mounted: {    /* for axios? */  }
+
+
 });
 
 
@@ -204,6 +247,10 @@ var app = new Vue({
 /*  TODO:
 
         editBlog(){
+
+        },
+
+        addComment(){
 
         },
 
