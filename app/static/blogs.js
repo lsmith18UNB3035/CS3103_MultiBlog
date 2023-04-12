@@ -9,7 +9,7 @@ var app = new Vue({
         baseURL: "https://cs3103.cs.unb.ca:8027",
         authenticated: false,
         loggedIn: null,
-        blogData: null, // ?? when do we populate it?
+        blogData: null,
         commentData: null,
         userBlogData: null,
         editModal: false,
@@ -27,11 +27,11 @@ var app = new Vue({
         newBlog:{
             title: "",
             content: ""
-        },
+        },input
 
         comment: "",
 
-        selectedBlog: { //this is basically the edited blog
+        selectedBlog: {
             title: "",
             content: ""
         }, 
@@ -75,8 +75,6 @@ var app = new Vue({
         });
     },
 
-
-    //todo: check all the catch the bannerContent
     methods: {
         login() {
             if(this.input.username != "" && this.input.password != "") {
@@ -129,7 +127,7 @@ var app = new Vue({
                 this.blogData = response.data.blogs;
             })
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = " No blogs exist / undefined error ";
                 console.log(e);
             });
         },
@@ -141,7 +139,7 @@ var app = new Vue({
                 this.commentData = response.data.comments;
             })
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Comment does not exist";
                 console.log(e);
             });
         },
@@ -153,13 +151,13 @@ var app = new Vue({
                 this.userBlogData = response.data.blogs;
             })
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Specified user has no blogs";
                 console.log(e);
             });
             this.showHomeModal();
         },
 
-        displayBlog(blogId){    // (fr. selectSchool(schoolId)  )
+        displayBlog(blogId){
             this.showBlogModal();
             for (item in this.blogData) {
                 if (this.blogData[item].blogId == blogId) {
@@ -178,7 +176,7 @@ var app = new Vue({
             axios
             .post(this.baseURL + "/user/" + this.loggedIn + "/blogs", requestJson)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Please refrain from using unrecognized characters";
                 console.log(e);
             });
             this.hideWriteModal();
@@ -191,7 +189,7 @@ var app = new Vue({
             axios
             .put(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId, requestJson)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";         // this need to be changed.........
+                this.bannerContent.blogNotFound = "Could not edit blog, please try again";
                 console.log(e);
             });
             this.hideEditModal();
@@ -207,7 +205,7 @@ var app = new Vue({
             axios
             .delete(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Blog was not deleted. Please try again.";
                 console.log(e);
             });
             this.hideEditModal();
@@ -217,7 +215,7 @@ var app = new Vue({
             axios
             .delete(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId + "/comments/" + commentId)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Comment was not deleted. Please try again.";
                 console.log(e);
             });
             this.getComments()
@@ -229,7 +227,7 @@ var app = new Vue({
             axios
             .post(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId + "/comments", requestJson)
             .catch( e => {
-                this.bannerContent.blogNotFound = "Something went wrong.";
+                this.bannerContent.blogNotFound = "Comment could not be added. Please check fields.";
                 console.log(e);
             });
             this.hideCommentModal();
