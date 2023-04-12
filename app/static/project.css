@@ -4,6 +4,14 @@
   cursor: pointer;
 }
 
+.blog-list:hover{
+  background-color:lightblue;
+}
+.blog-list{
+  border-radius:10px;
+  padding:5px;
+}
+
 .modal-dialog {
   width: 360px;
  }
@@ -48,6 +56,7 @@
 .modal-body {
   position: relative;
   padding: 20px 10px;
+  overflow-y: auto;
 }
 
 .modal-prepend {

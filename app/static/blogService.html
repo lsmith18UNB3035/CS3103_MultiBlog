@@ -4,26 +4,28 @@
         <title>Multi-User Blog Service</title>
     </head>
     <body>
-        <div class="container-fluid" id="app">
+        <div class="container-fluid" id="app" style="padding-bottom:50px">
             <div class="jumbotron jumbotron-fluid text-center">
                 <h1>Welcome to Multi-User Blog Service<sup><small>TM</small></sup></sup></h1>
                 <div v-if="!authenticated" class="form-group text-center">
                     <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username" placeholder="Username" />
                     <input class="col-4 mx-auto form-control" type="password" name="password" v-model="input.password" placeholder="Password" />
-                    <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+                    <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()"><i class="fa fa-sign-in" aria-hidden="true"></i>Login</button>
                 </div>
                 <div v-else class="text-center">
-                    <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>
-                    <button type="button" class="btn btn-outline-primary" v-on:click="getBlogsByUser()">Home</button>
+                    <button type="button" class="btn btn-outline-danger" v-on:click="logout()"><i class="fa fa-sign-out" aria-hidden="true"></i>Logout</button>
+                    <button type="button" class="btn btn-outline-primary" v-on:click="getBlogsByUser()"><i class="fa fa-home" aria-hidden="true"></i></button>
                 </div>
                 <div><p>{{bannerContent.badLogin}}</p></div>
             </div>
             <div v-if="blogData != null" id="blogsList">
+                <p class="text-center" style="font-size:24px">Blogs</p>
                 <ul class="list-group">
                     <div v-for="blog in blogData">
                         <li class="list-group-item col-7 mx-auto">
-                            <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(blog.blogId)">
-                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.author}}
+                            <div class="d-flex w-100 justify-content-between blog-list" v-on:click="displayBlog(blog.blogId)">
+                                <p style="font-weight:bold; font-size:22px">{{blog.title}}</p>
+                                  {{blog.author}} - {{blog.dateCreated}}
                             </div>
                         </li>
                     </div>
@@ -32,28 +34,38 @@
 
 
             <modal v-if="isolateModal" @close="hideBlogModal">
-                <div slot="header" class="modal-header">
-                        {{displayedBlog.title}}<br>
-                        {{displayedBlog.author}} - {{displayedBlog.date}}
+                <div slot="header" class="modal-header" style="width:100%">
+                    <div class="text-center" style="font-weight:bold; font-size:28px">
+                        <p>{{displayedBlog.title}}</p>
+                    </div>
+                    <div class="text-left" style="padding:30px">
+                        {{displayedBlog.author}} - {{displayedBlog.dateCreated}}
+                    </div>
                 </div>
                 <div slot="body">
                     <div class="form-group col-12">
-                        <div class="input-group mb-3">
-                            <p>{{displayedBlog.content}}</p>
+                        <div class="input-group mb-3" style="border-style:dashed; border-color:gainsboro; border-radius:10px">
+                            <p style="max-height:500px; overflow:auto">{{displayedBlog.content}}</p>
                         </div>
-                        <div v-if="authenticated" class="form-group text-center">
-                            <button class="btn btn-outline-primary" type="button" v-on:click="showCommentModal()">Comment</button>
+                        
+                        <div v-if="authorizedBlog" class="text-right">
+                            <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()"><i class="fa fa-trash" aria-hidden="true"></i></button>
                         </div>
-                        <div v-if="authorizedBlog" class="text-center">
-                            <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
-                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                        <div>
+                            <div class="text-left" style="padding-left:30px">
+                                <i class="fa fa-comments" aria-hidden="true"></i>Comments
+                            </div>
+                            <div v-if="authenticated" class="form-group text-right" style="padding-right:30px">
+                                <button class="btn btn-outline-primary" type="button" v-on:click="showCommentModal()">Comment</button>
+                            </div>
                         </div>
-                        <div v-if="addingComment" class="form-group text-center">
-                            <input class="col-8 form-control" type="text" id="newComment" v-model="comment" placeholder="Enter Comment" />
+                        <div v-if="addingComment" class="form-group text-center" style="padding-left:50px; padding-top:5px; padding-bottom:5px; border-style:solid; border-block-width:1px; border-radius:10px">
+                            <input class="col-8 form-control" type="text" id="newComment" v-model="newComment.content" placeholder="Enter Comment" />
                             <br>
                             <div class="text-center">
-                                <button type="button" class="btn btn-outline-primary" v-on:click="addComment()">Submit</button>
-                                <button type="button" class="btn btn-outline-danger" v-on:click="hideCommentModal()">Cancel</button>
+                                <button type="button" class="btn btn-outline-primary" v-on:click="addComment()"><i class="fa fa-check" aria-hidden="true"></i>Submit</button>
+                                <button type="button" class="btn btn-outline-danger" v-on:click="hideCommentModal()"><i class="fa fa-times" aria-hidden="true"></i></button>
                             </div>
                         </div>
                         <div v-if="commentData != null" id="commentsList">
@@ -61,12 +73,20 @@
                                 <div v-for="comment in commentData">
                                     <li class="list-group-item col-8 mx-auto">
                                         <div class="d-flex w-100 justify-content-between">
-                                            <input class="col-8 form-control" type="text" v-model="comment.content" style="pointer-events:none" />
-                                            <br>{{comment.author}} - {{comment.dateCreated}}
-                                            <div v-if="comment.userId === loggedIn" class="text-center">
-                                                <button type="button" class="btn btn-outline-primary" v-on:click="editComment()">Edit</button>
-                                                <button type="button" class="btn btn-outline-danger" v-on:click="deleteComment(comment.commentId)">Delete</button>
+                                            <div v-if="editingComment == comment.commentId" class="text-right" style="width:100%">
+                                                <input class="col-12 form-control" type="text" v-model="selectedComment.content" />
+                                                <button type="button" class="btn btn-outline-primary" v-on:click="editComment(comment.commentId)"><i class="fa fa-check" aria-hidden="true"></i>Submit</button>
+                                                <button type="button" class="btn btn-outline-danger" v-on:click="updateCommentEdit()"><i class="fa fa-times" aria-hidden="true"></i></button>
                                             </div>
+                                            <div v-else class="text-left" style="width:100%">
+                                                <br>{{comment.author}} - {{comment.dateCreated}}
+                                                <input class="col-12 form-control" type="text" v-model="comment.content" style="pointer-events:none" />
+                                                <div v-if="comment.userId === loggedIn" class="text-right">
+                                                    <button type="button" class="btn btn-outline-primary" v-on:click="displayCommentEdit(comment.commentId, comment.content)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                                    <button type="button" class="btn btn-outline-danger" v-on:click="deleteComment(comment.commentId)"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+                                            
                                         </div>
                                     </li>
                                 </div>
@@ -91,8 +111,8 @@
                             <input class="col-10 form-control" type="text-multiline" id="editBlogContent" v-model="selectedBlog.content" placeholder="Blog Content" />
                         </div>
                         <div class="text-center">
-                            <button type="button" class="btn btn-outline-primary" v-on:click="submitBlogEdit()">Submit</button>
-                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                            <button type="button" class="btn btn-outline-primary" v-on:click="submitBlogEdit()"><i class="fa fa-check" aria-hidden="true"></i>Submit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()"><i class="fa fa-trash" aria-hidden="true"></i></button>
                         </div>
                     </div>
                 </div>
@@ -113,8 +133,8 @@
                             <input class="col-10 form-control" type="text-multiline" id="newBlogContent" v-model="newBlog.content" placeholder="Blog Content" />
                         </div>
                         <div class="text-center">
-                            <button type="button" class="btn btn-outline-primary" v-on:click="addBlog()">Submit</button>
-                            <button type="button" class="btn btn-outline-danger" v-on:click="hideWriteModal()">Cancel</button>
+                            <button type="button" class="btn btn-outline-primary" v-on:click="addBlog()"><i class="fa fa-check" aria-hidden="true"></i>Submit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="hideWriteModal()"><i class="fa fa-times" aria-hidden="true"></i></button>
                         </div>
                     </div>
                 </div>
@@ -123,27 +143,29 @@
                 </div>
             </modal>
             <modal v-if="homeModal" @close="hideHomeModal">
-                <div slot="header" class="modal-header">
-                    HOME
+                <div slot="header" class="modal-header" style="font-weight:bold; font-size:28px">
+                    HOME - {{currentAuthor}}
                 </div>
                 <div slot="body">
+                    <div class="text-right" style="padding-right:50px">
+                        <button type="button" class="btn btn-outline-primary" v-on:click="showWriteModal()"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>New Blog</button>
+                    </div>
+                    <p class="text-center" style="font-size:24px">My Blogs</p>
                     <div v-if="userBlogData != null" id="userBlogsList">
                         <ul class="list-group">
                             <div v-for="userBlog in userBlogData">
                                 <li class="list-group-item col-7 mx-auto">
-                                    <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(userBlog.blogId)">
-                                        {{userBlog.title}}  {{userBlog.dateCreated}}<br>{{userBlog.author}}
+                                    <div class="d-flex w-100 justify-content-between blog-list" v-on:click="displayBlog(userBlog.blogId)">
+                                        <p style="font-weight:bold; font-size:22px">{{userBlog.title}}</p>
+                                          {{userBlog.author}} - {{userBlog.dateCreated}}
                                     </div>
                                 </li>
                             </div>
                         </ul>
                     </div>
-                    <div class="text-center">
-                        <button type="button" class="btn btn-outline-primary" v-on:click="showWriteModal()">New Blog</button>
-                    </div>
                 </div>
                 <div slot="footer">
-                    <button type="button" class="btn btn-secondary" v-on:click="hideHomeModal()">Return</button>
+                    <button type="button" class="btn btn-secondary" v-on:click="hideHomeModal()"><i class="fa fa-reply" aria-hidden="true"></i>Return</button>
                 </div>
             </modal>
             <!-- template for the modal component -->
@@ -184,5 +206,6 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="./blogs.js" ></script>
         <link rel="stylesheet" href="./project.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </body>
 </html>

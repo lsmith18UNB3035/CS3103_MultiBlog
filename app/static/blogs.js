@@ -15,9 +15,12 @@ var app = new Vue({
         editModal: false,
         isolateModal: false,
         homeModal:false,
+        wasHomeModal:false,
         writeModal: false,
         authorizedBlog: false,
         addingComment: false,
+        editingComment: null,
+        currentAuthor: null,
 
         input: {
             username: "",
@@ -27,14 +30,20 @@ var app = new Vue({
         newBlog:{
             title: "",
             content: ""
-        },input
+        },
 
-        comment: "",
+        newComment: {
+            content: ""
+        },
 
         selectedBlog: {
             title: "",
             content: ""
         }, 
+
+        selectedComment: {
+            content: "",
+        },
 
         displayedBlog: {
             blogId: -1,
@@ -42,8 +51,8 @@ var app = new Vue({
             author: "",
             title: "",
             content: "",
+            dateCreated: ""
         },
-        // },
 
         displayedComment: {
             commentId: -1,
@@ -154,11 +163,20 @@ var app = new Vue({
                 this.bannerContent.blogNotFound = "Specified user has no blogs";
                 console.log(e);
             });
+            for(item in this.userBlogData){
+                console.log(this.userBlogData[item].author);
+                this.currentAuthor = this.userBlogData[item].author;
+                break;
+            }
             this.showHomeModal();
         },
 
         displayBlog(blogId){
             this.showBlogModal();
+            if(this.homeModal){
+                this.wasHomeModal = true;
+                this.hideHomeModal();
+            }
             for (item in this.blogData) {
                 if (this.blogData[item].blogId == blogId) {
                     this.displayedBlog = this.blogData[item]
@@ -223,7 +241,7 @@ var app = new Vue({
 
         addComment() {
             let requestJson = null;
-            requestJson = {'content': this.comment}
+            requestJson = {'content': this.newComment.content}
             axios
             .post(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId + "/comments", requestJson)
             .catch( e => {
@@ -233,8 +251,27 @@ var app = new Vue({
             this.hideCommentModal();
         },
 
-        editComment() {
+        editComment(commentId) {
+            let requestJson = null;
+            requestJson = {'content': this.selectedComment.content}
+            console.log(requestJson)
+            axios
+            .put(this.baseURL + "/user/" + this.loggedIn + "/blogs/" + this.displayedBlog.blogId + "/comments/" + commentId, requestJson)
+            .catch( e => {
+                this.bannerContent.blogNotFound = "Could not edit comment, please try again";
+                console.log(e);
+            });
+            this.updateCommentEdit();
+        },
 
+        updateCommentEdit(){
+            this.editingComment = null;
+            location.reload();
+        },
+
+        displayCommentEdit(commentId, content){
+            this.editingComment = commentId;
+            this.selectedComment.content = content;
         },
 
         showCommentModal() {
@@ -261,6 +298,10 @@ var app = new Vue({
         hideBlogModal() {
             this.isolateModal = false;
             this.authorizedBlog = false;
+            if(this.wasHomeModal){
+                this.wasHomeModal = false;
+                this.showHomeModal();
+            }
         },
         hideEditModal() {
             this.editModal = false;
