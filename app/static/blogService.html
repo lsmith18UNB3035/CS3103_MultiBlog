@@ -39,7 +39,7 @@
                 <div slot="body">
                     <div class="form-group col-12">
                         <div class="input-group mb-3">
-                            <input class="col-10 form-control" type="text-multiline" id="blogContent" v-model="displayedBlog.content" placeholder="Blog Content" style="pointer-events:none" />
+                            <p>{{displayedBlog.content}}</p>
                         </div>
                         <div v-if="authenticated" class="form-group text-center">
                             <button class="btn btn-outline-primary" type="button" v-on:click="showCommentModal()">Comment</button>
