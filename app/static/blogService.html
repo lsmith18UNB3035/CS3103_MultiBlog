@@ -16,6 +16,7 @@
                     <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>
                     <button type="button" class="btn btn-outline-primary" v-on:click="getBlogsByUser()">Home</button>
                 </div>
+                <div><p>{{bannerContent.badLogin}}</p></div>
             </div>
             <div v-if="blogData != null" id="blogsList">
                 <ul class="list-group">
