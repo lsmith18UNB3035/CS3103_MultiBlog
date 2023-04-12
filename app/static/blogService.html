@@ -43,6 +43,10 @@
                         <div v-if="authenticated" class="form-group text-center">
                             <button class="btn btn-outline-primary" type="button" v-on:click="comment()">Comment</button>
                         </div>
+                        <div v-if="authorizedBlog" class="text-center">
+                            <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                        </div>
                         <div v-if="addingComment" class="form-group text-center">
                             <input class="col-8 form-control" type="text" id="newComment" placeholder="Enter Comment" />
                             <br>
@@ -58,14 +62,14 @@
                                         <div class="d-flex w-100 justify-content-between">
                                             <input class="col-8 form-control" type="text" v-model="comment.content" style="pointer-events:none" />
                                             <br>{{comment.author}} - {{comment.date}}
+                                            <div v-if="authorizedComment" class="text-center">
+                                                <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
+                                                <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                                            </div>
                                         </div>
                                     </li>
                                 </div>
                             </ul>
-                        </div>
-                        <div v-else class="text-center">
-                            <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
-                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -102,13 +106,13 @@
                 <div slot="body">
                     <div class="form-group col-12">
                         <div class="input-group mb-3">
-                            <input class="col-6 form-control" type="text" id="newBlogTitle" placeholder="Blog Title" />
+                            <input class="col-6 form-control" type="text" id="newBlogTitle" v-model="newBlog.title" placeholder="Blog Title" />
                         </div>
                         <div class="input-group mb-3">
-                            <input class="col-10 form-control" type="text-multiline" id="newBlogContent" placeholder="Blog Content" />
+                            <input class="col-10 form-control" type="text-multiline" id="newBlogContent" v-model="newBlog.content" placeholder="Blog Content" />
                         </div>
                         <div class="text-center">
-                            <button type="button" class="btn btn-outline-primary" v-on:click="submitBlog()">Submit</button>
+                            <button type="button" class="btn btn-outline-primary" v-on:click="addBlog()">Submit</button>
                             <button type="button" class="btn btn-outline-danger" v-on:click="hideWriteModal()">Cancel</button>
                         </div>
                     </div>
@@ -119,7 +123,7 @@
             </modal>
             <modal v-if="homeModal" @close="hideHomeModal">
                 <div slot="header" class="modal-header">
-                    Create New Blog
+                    HOME
                 </div>
                 <div slot="body">
                     <div v-if="userBlogData != null" id="userBlogsList">

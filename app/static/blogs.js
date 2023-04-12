@@ -15,10 +15,16 @@ var app = new Vue({
         isolateModal: false,
         homeModal:false,
         writeModal: false,
+        authorizedBlog: false,
 
         input: {
             username: "",
             password: ""      
+        },
+
+        newBlog:{
+            title: "",
+            content: ""
         },
 
         // worth adding?
@@ -145,18 +151,29 @@ var app = new Vue({
             for (item in this.blogData) {
                 if (this.blogData[item].blogId == blogId) {
                     this.displayedBlog = this.blogData[item]
+                    if(this.blogData[item].userId == this.loggedIn){
+                        this.authorizedBlog = true;
+                    }
                 }
             }
         },
 
-        addBlog(title, content){
+        addBlog(){
+            let requestJson = null;
+            requestJson = {'title': this.newBlog.title, 'content': this.newBlog.content}
             axios
-            let requestJson = {'title': title, 'content': content}
-            .post(this.baseURL + "/user/" + loggedIn + "/blogs/", requestJson)
+            /*
+            .post(this.baseURL + "/user/" + this.loggedIn + "/blogs", {
+                "title": this.input.username,
+                "password": this.input.password
+            })
+            */
+            .post(this.baseURL + "/user/" + this.loggedIn + "/blogs", requestJson)
             .catch( e => {
                 this.bannerContent.blogNotFound = "Something went wrong.";
                 console.log(e);
             });
+            this.hideWriteModal();
         },
 
         submitBlogEdit() {
@@ -169,6 +186,7 @@ var app = new Vue({
                 this.bannerContent.blogNotFound = "Something went wrong.";         // this need to be changed.........
                 console.log(e);
             });
+            this.hideEditModal();
         },
 
         editBlog() {
@@ -208,9 +226,11 @@ var app = new Vue({
         showWriteModal() {
             this.writeModal = true;
             this.homeModal = false;
+            console.log("logged in: " + this.loggedIn);
         },
         hideBlogModal() {
             this.isolateModal = false;
+            this.authorizedBlog = false;
         },
         hideEditModal() {
             this.editModal = false;
@@ -223,6 +243,7 @@ var app = new Vue({
         hideWriteModal() {
             this.writeModal = false;
             this.homeModal = true;
+            location.reload();
         }
     },// --- methods --- //
 
