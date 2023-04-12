@@ -42,30 +42,30 @@
                             <input class="col-10 form-control" type="text-multiline" id="blogContent" v-model="displayedBlog.content" placeholder="Blog Content" style="pointer-events:none" />
                         </div>
                         <div v-if="authenticated" class="form-group text-center">
-                            <button class="btn btn-outline-primary" type="button" v-on:click="comment()">Comment</button>
+                            <button class="btn btn-outline-primary" type="button" v-on:click="showCommentModal()">Comment</button>
                         </div>
                         <div v-if="authorizedBlog" class="text-center">
                             <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
                             <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
                         </div>
                         <div v-if="addingComment" class="form-group text-center">
-                            <input class="col-8 form-control" type="text" id="newComment" placeholder="Enter Comment" />
+                            <input class="col-8 form-control" type="text" id="newComment" v-model="comment" placeholder="Enter Comment" />
                             <br>
                             <div class="text-center">
-                                <button type="button" class="btn btn-outline-primary" v-on:click="submitComment()">Submit</button>
-                                <button type="button" class="btn btn-outline-danger" v-on:click="comment()">Cancel</button>
+                                <button type="button" class="btn btn-outline-primary" v-on:click="addComment()">Submit</button>
+                                <button type="button" class="btn btn-outline-danger" v-on:click="hideCommentModal()">Cancel</button>
                             </div>
                         </div>
-                        <div v-if="selectedComments != null" id="commentsList">
+                        <div v-if="commentData != null" id="commentsList">
                             <ul class="list-group">
-                                <div v-for="comment in selectedComments">
+                                <div v-for="comment in commentData">
                                     <li class="list-group-item col-8 mx-auto">
                                         <div class="d-flex w-100 justify-content-between">
                                             <input class="col-8 form-control" type="text" v-model="comment.content" style="pointer-events:none" />
-                                            <br>{{comment.author}} - {{comment.date}}
-                                            <div v-if="authorizedComment" class="text-center">
-                                                <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
-                                                <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                                            <br>{{comment.author}} - {{comment.dateCreated}}
+                                            <div v-if="comment.userId === loggedIn" class="text-center">
+                                                <button type="button" class="btn btn-outline-primary" v-on:click="editComment()">Edit</button>
+                                                <button type="button" class="btn btn-outline-danger" v-on:click="deleteComment(comment.commentId)">Delete</button>
                                             </div>
                                         </div>
                                     </li>
