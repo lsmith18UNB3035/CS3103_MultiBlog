@@ -53,7 +53,6 @@ var app = new Vue({
         },
 
         bannerContent: {
-            noCredentials: "",
             badLogin: "",
             blogNotFound: "",
         },
@@ -98,7 +97,7 @@ var app = new Vue({
                     console.log(e);
                 });
             } else {
-                this.bannerContent.noCredentials = "You must provide both a user name and password to enter";
+                this.bannerContent.badLogin = "You must provide both a user name and password to enter";
             }        
         },
 
