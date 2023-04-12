@@ -214,8 +214,10 @@ class BlogComments(Resource):
       sql = 'getCommentsByBlog'
       args = (blogId,)
       rows = sqlCallFetchAll(sql, args)
+      rowsWithAuthor = addAuthors(rows)
+      rowsWithAuthor = correctDateAndTime(rowsWithAuthor)
 
-      return make_response(jsonify({"comments": rows}), 200) # successful
+      return make_response(jsonify({"comments": rowsWithAuthor}), 200) # successful
       
 
 api.add_resource(BlogComments, '/blogs/<int:blogId>/comments')
