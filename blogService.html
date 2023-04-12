@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Multi-User Blog Service</title>
+    </head>
+    <body>
+        <div class="container-fluid" id="app">
+            <div class="jumbotron jumbotron-fluid text-center">
+                <h1>Welcome to Multi-User Blog Service<sup><small>TM</small></sup></sup></h1>
+                <div v-if="!authenticated" class="form-group text-center">
+                    <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username" placeholder="Username" />
+                    <input class="col-4 mx-auto form-control" type="password" name="password" v-model="input.password" placeholder="Password" />
+                    <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+                </div>
+                <div v-else class="text-center">
+                    <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>
+                    <button type="button" class="btn btn-outline-primary" v-on:click="getBlogsByUser()">Home</button>
+                </div>
+            </div>
+            <div v-if="blogData != null" id="blogsList">
+                <ul class="list-group">
+                    <div v-for="blog in blogData">
+                        <li class="list-group-item col-7 mx-auto">
+                            <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(blog.blogId)">
+                                {{blog.title}}  {{blog.dateCreated}}<br>{{blog.author}}
+                            </div>
+                        </li>
+                    </div>
+                </ul>
+            </div>
+
+
+            <modal v-if="isolateModal" @close="hideBlogModal">
+                <div slot="header" class="modal-header">
+                        {{displayedBlog.title}}<br>
+                        {{displayedBlog.author}} - {{displayedBlog.date}}
+                </div>
+                <div slot="body">
+                    <div class="form-group col-12">
+                        <div class="input-group mb-3">
+                            <input class="col-10 form-control" type="text-multiline" id="blogContent" v-model="displayedBlog.content" placeholder="Blog Content" style="pointer-events:none" />
+                        </div>
+                        <div v-if="authenticated" class="form-group text-center">
+                            <button class="btn btn-outline-primary" type="button" v-on:click="comment()">Comment</button>
+                        </div>
+                        <div v-if="authorizedBlog" class="text-center">
+                            <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                        </div>
+                        <div v-if="addingComment" class="form-group text-center">
+                            <input class="col-8 form-control" type="text" id="newComment" placeholder="Enter Comment" />
+                            <br>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-outline-primary" v-on:click="submitComment()">Submit</button>
+                                <button type="button" class="btn btn-outline-danger" v-on:click="comment()">Cancel</button>
+                            </div>
+                        </div>
+                        <div v-if="selectedComments != null" id="commentsList">
+                            <ul class="list-group">
+                                <div v-for="comment in selectedComments">
+                                    <li class="list-group-item col-8 mx-auto">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <input class="col-8 form-control" type="text" v-model="comment.content" style="pointer-events:none" />
+                                            <br>{{comment.author}} - {{comment.date}}
+                                            <div v-if="authorizedComment" class="text-center">
+                                                <button type="button" class="btn btn-outline-primary" v-on:click="editBlog()">Edit</button>
+                                                <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <button type="button" class="btn btn-secondary" v-on:click="hideBlogModal()">Close</button>
+                </div>
+            </modal>
+            <modal v-if="editModal" @close="hideEditModal">
+                <div slot="header" class="modal-header">
+                    Edit Blog Data
+                </div>
+                <div slot="body">
+                    <div class="form-group col-12">
+                        <div class="input-group mb-3">
+                            <input class="col-6 form-control" type="text" id="editBlogTitle" v-model="selectedBlog.title" placeholder="Blog Title" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <input class="col-10 form-control" type="text-multiline" id="editBlogContent" v-model="selectedBlog.content" placeholder="Blog Content" />
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-outline-primary" v-on:click="submitBlogEdit()">Submit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="deleteBlog()">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <button type="button" class="btn btn-secondary" v-on:click="hideEditModal()">Close</button>
+                </div>
+            </modal>
+            <modal v-if="writeModal" @close="hideWriteModal">
+                <div slot="header" class="modal-header">
+                    Create New Blog
+                </div>
+                <div slot="body">
+                    <div class="form-group col-12">
+                        <div class="input-group mb-3">
+                            <input class="col-6 form-control" type="text" id="newBlogTitle" v-model="newBlog.title" placeholder="Blog Title" />
+                        </div>
+                        <div class="input-group mb-3">
+                            <input class="col-10 form-control" type="text-multiline" id="newBlogContent" v-model="newBlog.content" placeholder="Blog Content" />
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-outline-primary" v-on:click="addBlog()">Submit</button>
+                            <button type="button" class="btn btn-outline-danger" v-on:click="hideWriteModal()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <button type="button" class="btn btn-secondary" v-on:click="hideWriteModal()">Close</button>
+                </div>
+            </modal>
+            <modal v-if="homeModal" @close="hideHomeModal">
+                <div slot="header" class="modal-header">
+                    HOME
+                </div>
+                <div slot="body">
+                    <div v-if="userBlogData != null" id="userBlogsList">
+                        <ul class="list-group">
+                            <div v-for="userBlog in userBlogData">
+                                <li class="list-group-item col-7 mx-auto">
+                                    <div class="d-flex w-100 justify-content-between" v-on:click="displayBlog(userBlog.blogId)">
+                                        {{userBlog.title}}  {{userBlog.dateCreated}}<br>{{userBlog.author}}
+                                    </div>
+                                </li>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-outline-primary" v-on:click="showWriteModal()">New Blog</button>
+                    </div>
+                </div>
+                <div slot="footer">
+                    <button type="button" class="btn btn-secondary" v-on:click="hideHomeModal()">Return</button>
+                </div>
+            </modal>
+            <!-- template for the modal component -->
+            <script type="text/x-template" id="modal-template">
+                <transition name="modal">
+                    <div class="modal-backdrop">
+                        <div class="modal">
+                            <header class="modal-header">
+                                <slot name="header">
+                                This is the default tile!
+                                <button type="button" class="btn-close" @click="hideBlogModal()">
+                                    x
+                                </button>
+                                </slot>
+                            </header>
+                            <section class="modal-body">
+                                <slot name="body">
+                                I'm the default body!
+                                </slot>
+                            </section>
+                            <footer class="modal-footer">
+                                <slot name="footer">
+                                    I'm the default footer!
+                                    <button type="button" class="btn-green" @click="hideBlogModal()">
+                                    Close me!
+                                    </button>
+                                </slot>
+                            </footer>
+                        </div>
+                    </div>
+                </transition>
+            </script>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="./blogs.js" ></script>
+        <link rel="stylesheet" href="./project.css"/>
+    </body>
+</html>
