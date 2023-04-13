@@ -194,9 +194,13 @@ class Login(Resource):
    # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar http://cs3103.cs.unb.ca:61024/user/login
    def get(self):
       sql = 'getUserWithUsername'
-      args = (session['username'],)
-      row = sqlCallFetchOne(sql, args)
-      userId = row['userId']
+      try:
+         args = (session['username'],)
+         row = sqlCallFetchOne(sql, args)
+         userId = row['userId']
+      except:
+         response = {'status': 'fail'}
+         responseCode = 403
       if 'username' in session:
          response = {'status': 'success', 'userId': userId}
          responseCode = 200
